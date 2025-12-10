@@ -7,7 +7,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 from sklearn.pipeline import make_pipeline
-from scipy.ndimage import gaussian_filter
 
 # 加载Iris数据集
 iris = load_iris()
@@ -59,10 +58,25 @@ xx, yy = np.meshgrid(
 # 创建图形（4行4列，8x6英寸）
 fig, axs = plt.subplots(4, 4, figsize=(8, 6), dpi=100)
 
-# 创建左侧colorbar轴
-cbar_ax = fig.add_axes([0.05, 0.1, 0.02, 0.8])
+# ===== 关键修改：调整 colorbar 位置和大小 =====
+# 原 cbar_ax: [0.05, 0.1, 0.02, 0.8] -> 缩小高度并上移
+cbar_ax = fig.add_axes([0.1, 0.35, 0.02, 0.6])  # y=0.2 (上移), height=0.6 (缩小)
 
-# 训练并绘制图表
+# ===== 新增：创建三个对应三类颜色的 colorbar =====
+# 类0 (绿色)
+cbar_ax0 = fig.add_axes([0.03, 0.08, 0.02, 0.2])  # y=0.1, height=0.2
+# 类1 (橙色)
+cbar_ax1 = fig.add_axes([0.11, 0.08, 0.02, 0.2])  # y=0.133, height=0.2
+# 类2 (蓝色)
+cbar_ax2 = fig.add_axes([0.19, 0.08, 0.02, 0.2])  # y=0.166, height=0.2
+
+# 创建三类颜色的 cmap
+green_cmap = mcolors.LinearSegmentedColormap.from_list('green_cmap', ['white', 'green'], N=256)
+orange_cmap = mcolors.LinearSegmentedColormap.from_list('orange_cmap', ['white', 'orange'], N=256)
+blue_cmap = mcolors.LinearSegmentedColormap.from_list('blue_cmap', ['white', 'blue'], N=256)
+blue_cmap2 = mcolors.LinearSegmentedColormap.from_list('blue_cmap', ['white', "#1ea7fc"], N=256)
+
+# ===== 训练并绘制图表 =====
 for model_idx, (model_name, model) in enumerate(models.items()):
     # 训练模型
     model.fit(X_train, y_train)
@@ -77,12 +91,11 @@ for model_idx, (model_name, model) in enumerate(models.items()):
         
         # 创建蓝色渐变颜色数组（白色→深蓝）
         blue_array = np.zeros((xx.shape[0], xx.shape[1], 3))
-        # 用概率值控制蓝色强度：概率=0时为白色(1,1,1)，概率=1时为深蓝(0,0,1)
         blue_array[:, :, 0] = 1 - probs[:, :, i]  # 红色通道
         blue_array[:, :, 1] = 1 - probs[:, :, i]  # 绿色通道
-        blue_array[:, :, 2] = 1  # 蓝色通道（保持为1，表示蓝色强度）
+        blue_array[:, :, 2] = 1  # 蓝色通道
         
-        # 绘制RGB混合效果（无色阶描线）
+        # 绘制RGB混合效果
         ax.imshow(
             blue_array, 
             extent=(x_min_adj - 0.5, x_max_adj + 0.5, y_min_adj - 0.5, y_max_adj + 0.5), 
@@ -90,7 +103,7 @@ for model_idx, (model_name, model) in enumerate(models.items()):
             alpha=0.8
         )
         
-        # 真实类别点（保持原始颜色）
+        # 真实类别点
         ax.scatter(
             X[y == i, 0], X[y == i, 1], 
             c='white',
@@ -115,10 +128,10 @@ for model_idx, (model_name, model) in enumerate(models.items()):
         # 标题
         ax.set_title(f'Class {i}', fontsize=8)
 
-    # **2. Max Class 概率叠加图（三种原始颜色叠加）**
+    # **2. Max Class 概率叠加图**
     ax = axs[model_idx, 3]
     
-    # 创建叠加颜色（每个点是三种颜色的加权组合）
+    # 创建叠加颜色
     color_array = np.zeros((xx.shape[0], xx.shape[1], 3))
     for i in range(3):
         rgb = mcolors.to_rgb(['green', 'orange', 'blue'][i])
@@ -132,7 +145,7 @@ for model_idx, (model_name, model) in enumerate(models.items()):
         alpha=0.8
     )
     
-    # 真实类别点（保持原始颜色）
+    # 真实类别点
     for i in range(3):
         ax.scatter(
             X[y == i, 0], X[y == i, 1], 
@@ -155,7 +168,7 @@ for model_idx, (model_name, model) in enumerate(models.items()):
         spine.set_edgecolor('k')
         spine.set_linewidth(1)
     
-    # 标题改为"Max Class"
+    # 标题
     ax.set_title('Max Class', fontsize=8)
 
 # **关键修改：模型名称竖直显示（旋转90度）**
@@ -171,15 +184,47 @@ for model_idx, model_name in enumerate(models.keys()):
         color='black'
     )
 
-# 创建统一的蓝色渐变colorbar
-blue_cmap = mcolors.LinearSegmentedColormap.from_list('blue_cmap', ['white', 'blue'], N=256)
+# ===== 创建 colorbar =====
+# 原概率 colorbar (缩小并上移)
 cbar = fig.colorbar(
     plt.cm.ScalarMappable(cmap=blue_cmap), 
     cax=cbar_ax, 
     orientation='vertical', 
     label='Probability'
 )
+cbar.ax.yaxis.set_label_position('left')
 cbar.ax.tick_params(labelsize=7)
+
+# 三个类别 colorbar (下方)
+cbar0 = fig.colorbar(
+    plt.cm.ScalarMappable(cmap=green_cmap), 
+    cax=cbar_ax0, 
+    orientation='vertical', 
+    label='Class 0'
+)
+cbar0.ax.yaxis.set_label_position('left')
+cbar0.ax.tick_params(labelsize=5)
+cbar0.ax.yaxis.label.set_size(8)
+
+cbar1 = fig.colorbar(
+    plt.cm.ScalarMappable(cmap=orange_cmap), 
+    cax=cbar_ax1, 
+    orientation='vertical', 
+    label='Class 1'
+)
+cbar1.ax.yaxis.set_label_position('left')
+cbar1.ax.tick_params(labelsize=5)
+cbar1.ax.yaxis.label.set_size(8)
+
+cbar2 = fig.colorbar(
+    plt.cm.ScalarMappable(cmap=blue_cmap), 
+    cax=cbar_ax2, 
+    orientation='vertical', 
+    label='Class 2'
+)
+cbar2.ax.yaxis.set_label_position('left')
+cbar2.ax.tick_params(labelsize=5)
+cbar2.ax.yaxis.label.set_size(8)
 
 # 调整布局
 plt.subplots_adjust(

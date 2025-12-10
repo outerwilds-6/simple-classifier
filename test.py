@@ -7,7 +7,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 from sklearn.pipeline import make_pipeline
-from scipy.ndimage import gaussian_filter
 
 # 加载Iris数据集
 iris = load_iris()
@@ -75,6 +74,7 @@ cbar_ax2 = fig.add_axes([0.19, 0.08, 0.02, 0.2])  # y=0.166, height=0.2
 green_cmap = mcolors.LinearSegmentedColormap.from_list('green_cmap', ['white', 'green'], N=256)
 orange_cmap = mcolors.LinearSegmentedColormap.from_list('orange_cmap', ['white', 'orange'], N=256)
 blue_cmap = mcolors.LinearSegmentedColormap.from_list('blue_cmap', ['white', 'blue'], N=256)
+blue_cmap2 = mcolors.LinearSegmentedColormap.from_list('blue_cmap', ['white', "#1ea7fc"], N=256)
 
 # ===== 训练并绘制图表 =====
 for model_idx, (model_name, model) in enumerate(models.items()):
@@ -204,6 +204,7 @@ cbar0 = fig.colorbar(
 )
 cbar0.ax.yaxis.set_label_position('left')
 cbar0.ax.tick_params(labelsize=5)
+cbar0.ax.yaxis.label.set_size(8)
 
 cbar1 = fig.colorbar(
     plt.cm.ScalarMappable(cmap=orange_cmap), 
@@ -213,6 +214,7 @@ cbar1 = fig.colorbar(
 )
 cbar1.ax.yaxis.set_label_position('left')
 cbar1.ax.tick_params(labelsize=5)
+cbar1.ax.yaxis.label.set_size(8)
 
 cbar2 = fig.colorbar(
     plt.cm.ScalarMappable(cmap=blue_cmap), 
@@ -222,6 +224,7 @@ cbar2 = fig.colorbar(
 )
 cbar2.ax.yaxis.set_label_position('left')
 cbar2.ax.tick_params(labelsize=5)
+cbar2.ax.yaxis.label.set_size(8)
 
 # 调整布局
 plt.subplots_adjust(
