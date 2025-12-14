@@ -2,10 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import datasets
 from sklearn.ensemble import RandomForestClassifier
-from mpl_toolkits.mplot3d import Axes3D
-import matplotlib.colors as mcolors
 from matplotlib.lines import Line2D
-from matplotlib.colors import LinearSegmentedColormap
 
 # 加载Iris数据集
 iris = datasets.load_iris()
@@ -182,15 +179,15 @@ prob_legend_elements = [
 ]
 
 # 添加数据点图例
-point_legend = ax.legend(loc='upper left', bbox_to_anchor=(-0.3, 0.7))
+point_legend = ax.legend(loc='upper left', bbox_to_anchor=(-0.33, 0.7))
 ax.add_artist(point_legend)  # 保存第一个图例
 
 # 添加决策边界图例
-boundary_legend = ax.legend(handles=legend_elements, loc='upper left', bbox_to_anchor=(-0.3, 0.45))
+boundary_legend = ax.legend(handles=legend_elements, loc='upper left', bbox_to_anchor=(-0.33, 0.45))
 ax.add_artist(boundary_legend)
 
 # 添加概率深度图例
-ax.legend(handles=prob_legend_elements, loc='upper left', bbox_to_anchor=(-0.3, 0.25), title='Probability Depth')
+ax.legend(handles=prob_legend_elements, loc='upper left', bbox_to_anchor=(-0.33, 0.25), title='Probability Depth')
 
 # 设置坐标轴标签和范围
 ax.set_xlabel('Sepal Width', fontsize=12)
@@ -201,7 +198,7 @@ ax.set_zlabel('Petal Width', fontsize=12)
 ax.set_zlim(z_min, z_max)
 
 # 设置图形标题
-ax.set_title('Random Forest Decision Regions with Probability-Aware Depth', fontsize=16)
+ax.set_title('Random Forest Decision Regions with Probability-Aware Depth', fontsize=16, y=1)
 
 # 设置视角
 ax.view_init(elev=25, azim=45)
